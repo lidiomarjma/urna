@@ -4,14 +4,18 @@ let descricao = document.querySelector('.d-1-4');
 let aviso = document.querySelector('.d-2');
 let lateral = document.querySelector('.d-1-right');
 let numeros = document.querySelector('.d-1-3');
-let numeroDigitado = '';
+
 
 let etapaAtual = 0;
+let numero = '';
+let votoBranco = false;
 
 function comecarEtapa() {
     let etapa = etapas[etapaAtual];
 
     let numeroHtml = '';
+    numero = '';
+    votoBranco = false;
 
     for (let i = 0; i < etapa.numeros; i++) {
         if (i === 0) {
@@ -30,7 +34,13 @@ function comecarEtapa() {
 }
 function atualizaInterface() {
     let etapa = etapas[etapaAtual];
-    let candidato = etapa.candidatos.filter((item) => item.numero === numeroDigitado);
+    let candidato = etapa.candidatos.filter((item) =>{
+        if(item.numero === numero) {
+            return true;
+        } else {
+            return false;
+        }
+    });
 
     if (candidato.length > 0) {
         candidato = candidato[0];
@@ -40,8 +50,11 @@ function atualizaInterface() {
 
         let fotosHtml = '';
         for (let i in candidato.fotos) {
-            fotosHtml += `<div class="d-1-image"><img src="images/${candidato.fotos[i].url}" alt="" />${candidato.fotos[i].legenda}</div>`;
-        }
+            if(candidato.fotos[i].small) {
+                fotosHtml += `<div class="d-1-image small"><img src="images/${candidato.fotos[i].url}" alt="" />${candidato.fotos[i].legenda}</div>`;
+            } else {
+                fotosHtml += `<div class="d-1-image"><img src="images/${candidato.fotos[i].url}" alt="" />${candidato.fotos[i].legenda}</div>`;
+        }   }
         lateral.innerHTML = fotosHtml;
     } else {
         seuVotoPara.style.display = 'block';
@@ -54,7 +67,7 @@ function clicou(n) {
     let elNumero = document.querySelector('.numero.pisca');
     if (elNumero !== null) {
         elNumero.innerHTML = n;
-        numeroDigitado += n;
+        numero += n;
 
         elNumero.classList.remove('pisca');
         if (elNumero.nextElementSibling !== null) {
@@ -65,13 +78,39 @@ function clicou(n) {
     }
 }
 function branco() {
-    alert();
+        numero === '';
+        votoBranco = true;
+
+        seuVotoPara.style.display = 'block';
+        aviso.style.display = 'block';
+        numeros.innerHTML = '';
+        descricao.innerHTML = `<div class="aviso--grande pisca">Voto em Branco</div>`;
+        lateral.innerHTML = '';
 }
 function corrige() {
-    alert();
+    comecarEtapa();
 }
 function confirma() {
-    alert();
+    let etapa = etapas[etapaAtual];
+
+    let votoConfirmado = false;
+
+    if(votoBranco === true) {
+        votoConfirmado = true;
+        console.log("Confirmado como Branco")
+    } else if(numero.length === etapa.numeros) {
+        votoConfirmado = true;
+        console.log("Confirmado como "+numero);
+    }
+
+    if(votoConfirmado) {
+        etapaAtual++;
+        if(etapas[etapaAtual] !== undefined) {
+            comecarEtapa();
+        } else {
+            console.log("Fim");
+        }
+    }
 }
 
 comecarEtapa();
